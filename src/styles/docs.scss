@@ -1,0 +1,40 @@
+@import 'themeColors';
+
+.docs a, .docs a:visited {
+  text-decoration: none;
+  color: $medGreen;
+}
+
+.docs img {
+  width: 100%;
+}
+
+.bitboxcli {
+  pre {
+    width: 100%;
+  }
+}
+
+.docsMenu {
+  background: $slate;
+}
+
+.docs .docsMenu, .docs .docsContent {
+  padding-top: 110px;
+}
+
+.docs .docsMenu ul:first-child {
+  font-size: 1.2em;
+}
+
+.docs .docsMenu ul ul {
+  font-size: 1em;
+}
+
+.docs .docsMenu ul {
+  list-style-type: none;
+}
+
+.docs .docsMenu ul li {
+  padding: 5px 0;
+}
