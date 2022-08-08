@@ -12,8 +12,6 @@ import '../styles/homepage.scss';
 import Utils from '../utils';
 import Shortener from '../utils/shortener';
 import axios from 'axios'
-
-const baseUrl = "https://api.fullstack.cash/v5/electrumx/tx/data/"
 class Transaction extends Component {
   constructor(props) {
     super(props);
@@ -21,19 +19,18 @@ class Transaction extends Component {
       tx: [],
       redirect: false,
       id: null,
-      inputs: [],
-      outputs: [],
+      vin: [],
+      vout: [],
     };
   }
 
   componentDidMount() {
     let id = this.props.match.params.id;
-    debugger
     document.title = `Transaction ${id} - CASH EXPLORER`;
     this.setState({
       id: id,
     });
-    
+
     if (Shortener.isShortened(id)) {
       Shortener.redirectFromShortened(this.props.history, 'transaction', id);
     } else {
@@ -44,7 +41,6 @@ class Transaction extends Component {
   componentWillReceiveProps(props) {
     let id = props.match.params.id;
     document.title = `Transaction ${id} - CASH EXPLORER`;
-    
     this.setState({
       id: id,
       blockhash: '',
@@ -54,32 +50,46 @@ class Transaction extends Component {
       time: '',
       txid: '',
       valueOut: '',
-      inputs: [],
-      outputs: [],
+      vin: [],
+      vout: [],
       path: '',
     });
-    
+
     this.fetchTransactionData(id);
   }
 
   fetchTransactionData(id) {
+    debugger
+    axios.get('https://api.blockchain.info/haskoin-store/btc/transaction/'+id).then(
+      response => {
+        const result = response.data;
+        this.setState({    
+          size: result.size / 1000,
+          time: result.time,
+          txid: result.txid,
+          vout: result.outputs,
+          vin: result.inputs,
+        });
+        axios.get('https://chain.api.btc.com/v3/tx/'+id).then(
+          result => {
+            this.setState({
+              blockheight : result.data.data.block_height,
+              valueOut: result.data.data.outputs_value,
+              confirmations: result.data.data.confirmations,
+              blockhash: result.data.data.blockhash,
+            })
+          }
+    )
+      },
     
-    axios.get(`${baseUrl}`+id).then((result)=>{
-      debugger
-      this.setState({
-        blockhash: result.data.data.block_hash,
-        blockheight: result.data.data.block_height,
-        confirmations: result.data.data.confirmations,
-        size: result.data.data.size / 1000,
-        time: result.data.data.created_at,
-        txid: result.data.data.hash,
-        valueOut: result.data.data.outputs_value,
-        inputs: result.data.inputs,
-        outputs: result.data.out
-        
-      })
-    })
-  
+      err => {
+        console.log(err);
+        this.props.history.push('/', {
+          error: 'Could not retrieve transaction details.',
+        });
+      },
+    );
+   
   }
 
   handleRedirect(path) {
@@ -128,12 +138,12 @@ class Transaction extends Component {
 
     let transactionVinTableLarge;
     let transactionVinTableSmall;
-    if (this.state.inputs.length > 0) {
+    if (this.state.vin.length > 0) {
       transactionVinTableLarge = (
         <TransactionVinTableLarge
           parsed={parsed}
           bitbox={this.props.bitbox}
-          vin={this.state.inputs}
+          vin={this.state.vin}
         />
       );
 
@@ -141,21 +151,21 @@ class Transaction extends Component {
         <TransactionVinTableSmall
           parsed={parsed}
           bitbox={this.props.bitbox}
-          vin={this.state.inputs}
+          vin={this.state.vin}
         />
       );
     }
 
     let transactionVoutTableLarge;
     let transactionVoutTableSmall;
-    if (this.state.outputs.length > 0) {
+    if (this.state.vout.length > 0) {
       transactionVoutTableLarge = (
         <TransactionVoutTableLarge
           parsed={parsed}
           bitbox={this.props.bitbox}
-          vout={this.state.outputs}
+          vout={this.state.vout}
           handleRedirect={this.handleRedirect.bind(this)}
-          txid={this.state.hash}
+          txid={this.state.txid}
         />
       );
 
@@ -163,9 +173,9 @@ class Transaction extends Component {
         <TransactionVoutTableSmall
           parsed={parsed}
           bitbox={this.props.bitbox}
-          vout={this.state.outputs}
+          vout={this.state.vout}
           handleRedirect={this.handleRedirect.bind(this)}
-          txid={this.state.hash}
+          txid={this.state.txid}
         />
       );
     }

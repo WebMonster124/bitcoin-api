@@ -21,79 +21,77 @@ class TransactionVoutTableSmall extends Component {
       this.props.vout.forEach((v, ind) => {
         let output;
         let largeNullData;
-        if (v.addresses && v.addresses.length > 0) {
+        if (v.address && v.address.length > 0) {
           const cashAddress = this.props.bitbox.Address.toCashAddress(
-            v.addresses[0],
+            v.address,
             false
           );
 
           output = (
-            <Link to={Utils.addressUrl(cashAddress)}>{cashAddress}</Link>
+            <Link to={Utils.addressUrl(v.address)}>{v.address}</Link>
           );
         } else {
-          let op = v.script_asm;
-          if (op && op.length > 0)
-          {
-            let memoPrefixes = [365, 621, 877, 1133, 1389, 1645, 1901, 3181];
-            let blockpressPrefixes = [
-              397,
-              653,
-              909,
-              1165,
-              1677,
-              1933,
-              2189,
-              2445,
-              4237,
-              4493
-            ];
+          let op = v.asm;
 
-            let split = op.split(" ");
-            let prefix = +split[1];
-            if (memoPrefixes.includes(prefix)) {
-              largeNullData = (
-                <MemoLarge
-                  handleRedirect={this.handleRedirect.bind(this)}
-                  active={
-                    this.props.parsed.output &&
-                    this.props.this.props.parsed.output == ind
-                      ? "active"
-                      : ""
-                  }
-                  parsed={this.props.parsed}
-                  key={ind + 1}
-                  split={split}
-                  prefix={prefix}
-                  bitbox={this.props.bitbox}
-                  txid={this.props.txid}
-                />
-              );
-            }
+          let memoPrefixes = [365, 621, 877, 1133, 1389, 1645, 1901, 3181];
+          let blockpressPrefixes = [
+            397,
+            653,
+            909,
+            1165,
+            1677,
+            1933,
+            2189,
+            2445,
+            4237,
+            4493
+          ];
 
-            if (blockpressPrefixes.includes(prefix)) {
-              largeNullData = (
-                <BlockpressLarge
-                  handleRedirect={this.handleRedirect.bind(this)}
-                  active={
-                    this.props.parsed.output &&
-                    this.props.this.props.parsed.output == ind
-                      ? "active"
-                      : ""
-                  }
-                  parsed={this.props.parsed}
-                  key={ind + 2}
-                  split={split}
-                  prefix={prefix}
-                  bitbox={this.props.bitbox}
-                  txid={this.props.txid}
-                />
-              );
-            }
+          let split = op.split(" ");
+          let prefix = +split[1];
+          if (memoPrefixes.includes(prefix)) {
+            largeNullData = (
+              <MemoLarge
+                handleRedirect={this.handleRedirect.bind(this)}
+                active={
+                  this.props.parsed.output &&
+                  this.props.this.props.parsed.output == ind
+                    ? "active"
+                    : ""
+                }
+                parsed={this.props.parsed}
+                key={ind + 1}
+                split={split}
+                prefix={prefix}
+                bitbox={this.props.bitbox}
+                txid={this.props.txid}
+              />
+            );
+          }
+
+          if (blockpressPrefixes.includes(prefix)) {
+            largeNullData = (
+              <BlockpressLarge
+                handleRedirect={this.handleRedirect.bind(this)}
+                active={
+                  this.props.parsed.output &&
+                  this.props.this.props.parsed.output == ind
+                    ? "active"
+                    : ""
+                }
+                parsed={this.props.parsed}
+                key={ind + 2}
+                split={split}
+                prefix={prefix}
+                bitbox={this.props.bitbox}
+                txid={this.props.txid}
+              />
+            );
           }
         }
 
         let times;
-        if (v.spent_by_tx !== null) {
+        if (v.spender == null) {
           times = <i className="fas fa-times" />;
         }
         voutBody.push(

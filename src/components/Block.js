@@ -32,7 +32,6 @@ class Block extends Component {
       debugger
       Shortener.redirectFromShortened(this.props.history, 'block', id);
     } else {
-      debugger
       this.determineEndpoint(id);
     }
   }

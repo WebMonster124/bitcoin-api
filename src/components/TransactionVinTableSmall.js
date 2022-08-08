@@ -12,39 +12,45 @@ import "../styles/homepage.scss";
 import Utils from '../utils';
 
 class TransactionVinTableSmall extends Component {
-
   render() {
-    let vinBody = [];let p
-
+    let vinBody = [];
+    if(this.props.vin) {
       this.props.vin.forEach((v, ind) => {
-          if (v.addresses)
-          {
-            const cashAddress = this.props.bitbox.Address.toCashAddress(v.addresses[0], false);
+        if(v.coinbase) {
+          vinBody.push(
+            <tr key={ind} className={this.props.parsed.input && this.props.parsed.input == ind ? "active" : ""}>
+              <td>Coinbase</td>
+              <td>No Inputs</td>
+              <td></td>
+              <td></td>
+            </tr>
+          );
+        } else {
+          debugger
+          const cashAddress = this.props.bitbox.Address.toCashAddress(v.address, false);
 
-            vinBody.push(
+          vinBody.push(
             <tr key={ind} className={this.props.parsed.input && this.props.parsed.input == ind ? "active" : ""}>
               <td>
                 <Link
-                  to={Utils.transactionUrl(v.addresses[0])}>
+                  to={Utils.transactionUrl(v.txid)}>
                   <i className="fas fa-chevron-left" />
                 </Link>
               </td>
               <td>
-               <FormattedNumber maximumFractionDigits={8} value={this.props.bitbox.BitcoinCash.toBitcoinCash(v.prev_value)}/>
+               <FormattedNumber maximumFractionDigits={8} value={this.props.bitbox.BitcoinCash.toBitcoinCash(v.value)}/>
               </td>
               <td>
-                <Link
-                  to={Utils.addressUrl(cashAddress)}>
-                  {cashAddress}
-                </Link>
+               <Link to={Utils.addressUrl(v.address)}>{v.address}</Link>
               </td>
               <td>
               {v.n}
               </td>
             </tr>
-            );
-          }
+          );
+        }
       });
+    }
     return (
       <div className="l-box pure-u-1 small">
         <h3 className='content-subhead'><i className="fas fa-long-arrow-alt-down" /> Inputs</h3>
